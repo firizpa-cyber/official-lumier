@@ -36,7 +36,7 @@ const recentSearches = [
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
-  
+
   const [query, setQuery] = useState(initialQuery);
   const [activeCategory, setActiveCategory] = useState("all");
   const [isFocused, setIsFocused] = useState(false);
@@ -49,9 +49,9 @@ const SearchPage = () => {
   // Filter based on search query
   const searchResults = useMemo(() => {
     if (!query.trim()) return [];
-    
+
     const lowerQuery = query.toLowerCase();
-    return allContent.filter((item) => 
+    return allContent.filter((item) =>
       item.title.toLowerCase().includes(lowerQuery) ||
       item.genres?.some(g => g.toLowerCase().includes(lowerQuery))
     );
@@ -140,6 +140,7 @@ const SearchPage = () => {
                     id={item.id}
                     title={item.title}
                     image={item.image}
+                    logo={item.logo}
                     rating={item.rating}
                     type={item.type}
                     year={item.year}
@@ -217,6 +218,7 @@ const SearchPage = () => {
                     id={movie.id}
                     title={movie.title}
                     image={movie.image}
+                    logo={movie.logo}
                     rating={movie.rating}
                     type={movie.type}
                     year={movie.year}

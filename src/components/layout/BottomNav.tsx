@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Star } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
@@ -81,70 +81,83 @@ export function BottomNav() {
         </div>
 
         {/* Profile button */}
-        <Sheet open={profileOpen} onOpenChange={setProfileOpen}>
-          <SheetTrigger asChild>
-            <button className="flex flex-col items-center justify-center gap-1 px-3 py-2 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0 min-w-fit">
-              <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                <User className="w-3.5 h-3.5 text-primary" />
+        {localStorage.getItem("auth_token") ? (
+          <Sheet open={profileOpen} onOpenChange={setProfileOpen}>
+            <SheetTrigger asChild>
+              <button className="flex flex-col items-center justify-center gap-1 px-3 py-2 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0 min-w-fit">
+                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+                  <User className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <span className="text-[0.6rem] font-medium whitespace-nowrap">Профиль</span>
+              </button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="max-h-[50vh] p-0 flex flex-col rounded-t-2xl">
+              {/* Handle bar */}
+              <div className="flex justify-center pt-3 pb-2">
+                <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
               </div>
-              <span className="text-[0.6rem] font-medium whitespace-nowrap">Профиль</span>
-            </button>
-          </SheetTrigger>
-          <SheetContent side="bottom" className="max-h-[50vh] p-0 flex flex-col rounded-t-2xl">
-            {/* Handle bar */}
-            <div className="flex justify-center pt-3 pb-2">
-              <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
-            </div>
 
-            {/* Profile content */}
-            <div className="overflow-y-auto flex-1 px-4">
-              <div className="py-4 space-y-4">
-                {/* User info placeholder */}
-                <div className="flex items-center gap-3 pb-4 border-b border-border/30">
-                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                    <User className="w-6 h-6 text-primary" />
+              {/* Profile content */}
+              <div className="overflow-y-auto flex-1 px-4">
+                <div className="py-4 space-y-4">
+                  {/* User info placeholder */}
+                  <div className="flex items-center gap-3 pb-4 border-b border-border/30">
+                    <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <User className="w-6 h-6 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-foreground">Мой аккаунт</p>
+                      <p className="text-xs text-muted-foreground">user@example.com</p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-foreground">Мой аккаунт</p>
-                    <p className="text-xs text-muted-foreground">user@example.com</p>
+
+                  {/* Profile menu items */}
+                  <div className="space-y-2">
+                    <Link
+                      to="/profile"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-foreground/80 hover:bg-muted hover:text-foreground transition-colors"
+                    >
+                      <User className="w-5 h-5" />
+                      <span className="text-sm font-medium">Мой профиль</span>
+                    </Link>
+
+                    <Link
+                      to="/pricing"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-foreground/80 hover:bg-muted hover:text-foreground transition-colors"
+                    >
+                      <Star className="w-5 h-5 text-primary" />
+                      <span className="text-sm font-medium">Подписка</span>
+                    </Link>
+
+                    <button
+                      onClick={() => {
+                        localStorage.removeItem("auth_token");
+                        navigate("/");
+                        setProfileOpen(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-colors"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span className="text-sm font-medium">Выход</span>
+                    </button>
                   </div>
                 </div>
-
-                {/* Profile menu items */}
-                <div className="space-y-2">
-                  <Link
-                    to="/profile"
-                    onClick={() => setProfileOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-foreground/80 hover:bg-muted hover:text-foreground transition-colors"
-                  >
-                    <User className="w-5 h-5" />
-                    <span className="text-sm font-medium">Мой профиль</span>
-                  </Link>
-
-                  <Link
-                    to="/settings"
-                    onClick={() => setProfileOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-foreground/80 hover:bg-muted hover:text-foreground transition-colors"
-                  >
-                    <User className="w-5 h-5" />
-                    <span className="text-sm font-medium">Настройки</span>
-                  </Link>
-
-                  <button
-                    onClick={() => {
-                      navigate("/");
-                      setProfileOpen(false);
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-colors"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    <span className="text-sm font-medium">Выход</span>
-                  </button>
-                </div>
               </div>
+            </SheetContent>
+          </Sheet>
+        ) : (
+          <button
+            onClick={() => navigate("/auth")}
+            className="flex flex-col items-center justify-center gap-1 px-3 py-2 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0 min-w-fit"
+          >
+            <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+              <User className="w-3.5 h-3.5" />
             </div>
-          </SheetContent>
-        </Sheet>
+            <span className="text-[0.6rem] font-medium whitespace-nowrap">Войти</span>
+          </button>
+        )}
       </div>
     </nav>
   );

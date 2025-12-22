@@ -14,7 +14,9 @@ import SearchPage from "./pages/SearchPage";
 import MovieDetailPage from "./pages/MovieDetailPage";
 import PlayerPage from "./pages/PlayerPage";
 import AuthPage from "./pages/AuthPage";
+import ProfilePage from "./pages/ProfilePage";
 import PaymentPage from "./pages/PaymentPage";
+import PricingPage from "./pages/PricingPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,7 +39,9 @@ const App = () => (
           <Route path="/movie/:id" element={<MovieDetailPage />} />
           <Route path="/watch/:id" element={<PlayerPage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

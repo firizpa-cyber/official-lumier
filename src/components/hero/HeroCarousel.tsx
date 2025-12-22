@@ -10,6 +10,7 @@ export interface HeroSlide {
   subtitle?: string;
   description?: string;
   image: string;
+  logo?: string;
   type?: "film" | "series" | "premiere";
   rating?: number;
   year?: string;
@@ -25,6 +26,7 @@ interface HeroCarouselProps {
 export function HeroCarousel({ slides, autoPlayInterval = 6000 }: HeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [failedLogos, setFailedLogos] = useState<Set<string>>(new Set());
 
   const goToSlide = useCallback((index: number) => {
     setCurrentIndex(index);
@@ -40,13 +42,13 @@ export function HeroCarousel({ slides, autoPlayInterval = 6000 }: HeroCarouselPr
 
   useEffect(() => {
     if (!isAutoPlaying) return;
-    
+
     const interval = setInterval(goToNext, autoPlayInterval);
     return () => clearInterval(interval);
   }, [isAutoPlaying, autoPlayInterval, goToNext]);
 
   const currentSlide = slides[currentIndex];
-  
+
   const badgeClasses = {
     film: "badge-film",
     series: "badge-series",
@@ -60,7 +62,7 @@ export function HeroCarousel({ slides, autoPlayInterval = 6000 }: HeroCarouselPr
   };
 
   return (
-    <section 
+    <section
       className="relative h-[500px] md:h-[600px] lg:h-[650px] overflow-hidden"
       onMouseEnter={() => setIsAutoPlaying(false)}
       onMouseLeave={() => setIsAutoPlaying(true)}
@@ -80,8 +82,12 @@ export function HeroCarousel({ slides, autoPlayInterval = 6000 }: HeroCarouselPr
               src={slide.image}
               alt={slide.title}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (slide.logo && target.src !== slide.logo) target.src = slide.logo;
+              }}
             />
-            
+
             {/* Gradient overlays */}
             <div className="absolute inset-0 hero-overlay" />
             <div className="absolute inset-0 hero-overlay-bottom" />
@@ -98,17 +104,28 @@ export function HeroCarousel({ slides, autoPlayInterval = 6000 }: HeroCarouselPr
               {badgeLabels[currentSlide.type]}
             </span>
           )}
-          
-          {/* Title */}
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            {currentSlide.title}
-          </h1>
-          
+
+          {/* Title or Logo */}
+          {currentSlide.logo && !failedLogos.has(currentSlide.logo) ? (
+            <img
+              src={currentSlide.logo}
+              alt={currentSlide.title}
+              className="max-h-24 md:max-h-32 mb-6 object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)] animate-fade-in"
+              onError={() => {
+                setFailedLogos(prev => new Set(prev).add(currentSlide.logo!));
+              }}
+            />
+          ) : (
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+              {currentSlide.title}
+            </h1>
+          )}
+
           {/* Subtitle */}
           {currentSlide.subtitle && (
             <p className="text-lg text-muted-foreground mb-2">{currentSlide.subtitle}</p>
           )}
-          
+
           {/* Meta info */}
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-4">
             {currentSlide.rating && (
@@ -118,14 +135,14 @@ export function HeroCarousel({ slides, autoPlayInterval = 6000 }: HeroCarouselPr
             {currentSlide.year && <span>{currentSlide.year}</span>}
             {currentSlide.country && <span>{currentSlide.country}</span>}
           </div>
-          
+
           {/* Description */}
           {currentSlide.description && (
             <p className="text-foreground/80 text-sm md:text-base mb-6 line-clamp-3">
               {currentSlide.description}
             </p>
           )}
-          
+
           {/* Actions */}
           <div className="flex items-center gap-3">
             <Link to={`/watch/${currentSlide.id}`}>
@@ -151,17 +168,17 @@ export function HeroCarousel({ slides, autoPlayInterval = 6000 }: HeroCarouselPr
           const isActive = index === currentIndex;
           const isPrev = index === (currentIndex === 0 ? slides.length - 1 : currentIndex - 1);
           const isNext = index === (currentIndex === slides.length - 1 ? 0 : currentIndex + 1);
-          
+
           if (!isPrev && !isActive && !isNext) return null;
-          
+
           return (
             <button
               key={slide.id}
               onClick={() => goToSlide(index)}
               className={cn(
                 "relative w-48 aspect-[16/10] rounded-lg overflow-hidden transition-all duration-300",
-                isActive 
-                  ? "ring-2 ring-primary scale-105 shadow-glow" 
+                isActive
+                  ? "ring-2 ring-primary scale-105 shadow-glow"
                   : "opacity-60 hover:opacity-100"
               )}
             >
@@ -170,6 +187,18 @@ export function HeroCarousel({ slides, autoPlayInterval = 6000 }: HeroCarouselPr
                 alt={slide.title}
                 className="w-full h-full object-cover"
               />
+              {slide.logo && !failedLogos.has(slide.logo) && (
+                <div className="absolute inset-0 flex items-center justify-center p-4 bg-black/10">
+                  <img
+                    src={slide.logo}
+                    alt={slide.title}
+                    className="max-h-full object-contain drop-shadow-md"
+                    onError={() => {
+                      setFailedLogos(prev => new Set(prev).add(slide.logo!));
+                    }}
+                  />
+                </div>
+              )}
               {slide.rating && (
                 <span className="absolute top-2 right-2 rating-badge text-xs">
                   {slide.rating.toFixed(1)}
@@ -193,8 +222,8 @@ export function HeroCarousel({ slides, autoPlayInterval = 6000 }: HeroCarouselPr
             onClick={() => goToSlide(index)}
             className={cn(
               "w-2 h-2 rounded-full transition-all duration-300",
-              index === currentIndex 
-                ? "w-8 bg-primary" 
+              index === currentIndex
+                ? "w-8 bg-primary"
                 : "bg-foreground/30 hover:bg-foreground/50"
             )}
             aria-label={`Go to slide ${index + 1}`}

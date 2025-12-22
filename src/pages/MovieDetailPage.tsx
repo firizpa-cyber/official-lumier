@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { ContentRow } from "@/components/content/ContentRow";
@@ -8,27 +9,33 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import hero2 from "@/assets/hero-2.jpg";
 
+import { getMovieById } from "@/data/movies";
+
 const MovieDetailPage = () => {
   const { id } = useParams();
-  
-  // Mock movie data - in real app, fetch by id
+  const [logoFailed, setLogoFailed] = useState(false);
+
+  const movieData = id ? getMovieById(id) : null;
+
+  if (!movieData) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-20 text-center">
+          <h1 className="text-2xl font-bold">Фильм не найден</h1>
+          <Link to="/" className="text-primary hover:underline mt-4 block">Вернуться на главную</Link>
+        </div>
+      </Layout>
+    );
+  }
+
   const movie = {
-    id: id || "1",
-    title: "Сводишь с ума",
-    originalTitle: "Crazy About You",
-    image: hero2,
-    rating: 8.1,
-    type: "series" as const,
-    year: "2024",
-    duration: "45 мин",
-    country: "Россия",
-    description: "Анна Грановская в прерасной молодёжной комедии о любви, интригах и прокисающем браке. Она всё ещё в замужней паре переживает настоящую проблему.",
-    genres: ["Драма", "Романтика", "Комедия"],
-    seasons: 2,
-    episodes: 16,
-    quality: "FullHD",
+    ...movieData,
+    originalTitle: "",
+    seasons: 1,
+    episodes: 1,
+    quality: "4K UltraHD",
     subtitles: "Русские",
-    ageRating: "16+",
+    ageRating: "18+",
   };
 
   return (
@@ -40,11 +47,15 @@ const MovieDetailPage = () => {
             src={movie.image}
             alt={movie.title}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (movie.poster && target.src !== movie.poster) target.src = movie.poster;
+            }}
           />
           <div className="absolute inset-0 hero-overlay" />
           <div className="absolute inset-0 hero-overlay-bottom" />
         </div>
-        
+
         <div className="relative container mx-auto px-4 py-12 flex flex-col md:flex-row gap-8">
           {/* Poster */}
           <div className="flex-shrink-0 w-[200px] md:w-[280px] mx-auto md:mx-0">
@@ -53,25 +64,42 @@ const MovieDetailPage = () => {
                 src={movie.image}
                 alt={movie.title}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (movie.logo && target.src !== movie.logo) target.src = movie.logo;
+                }}
               />
             </div>
           </div>
-          
+
           {/* Info */}
           <div className="flex-1 flex flex-col justify-center">
             <div className="flex items-center gap-3 mb-4">
-              <span className="badge-series">Сериал</span>
-              <span className="text-sm text-muted-foreground">{movie.ageRating}</span>
+              <span className={movie.type === 'series' ? 'badge-series' : 'badge-film'}>
+                {movie.type === 'series' ? 'Сериал' : 'Фильм'}
+              </span>
+              <span className="text-sm font-medium px-2 py-0.5 bg-muted rounded text-muted-foreground border border-muted-foreground/20">
+                {movie.ageRating}
+              </span>
             </div>
-            
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-2">
-              {movie.title}
-            </h1>
-            
+
+            {movie.logo && !logoFailed ? (
+              <img
+                src={movie.logo}
+                alt={movie.title}
+                className="max-h-24 md:max-h-32 mb-6 object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
+                onError={() => setLogoFailed(true)}
+              />
+            ) : (
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-2">
+                {movie.title}
+              </h1>
+            )}
+
             {movie.originalTitle && (
               <p className="text-muted-foreground mb-4">{movie.originalTitle}</p>
             )}
-            
+
             {/* Rating and meta */}
             <div className="flex flex-wrap items-center gap-4 mb-6">
               <div className="flex items-center gap-2">
@@ -80,7 +108,7 @@ const MovieDetailPage = () => {
                   <div className="text-foreground font-medium">Рейтинг Lumiere</div>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
@@ -96,7 +124,7 @@ const MovieDetailPage = () => {
                 </span>
               </div>
             </div>
-            
+
             {/* Actions */}
             <div className="flex flex-wrap items-center gap-3 mb-6">
               <Link to={`/watch/${movie.id}`}>
@@ -119,17 +147,19 @@ const MovieDetailPage = () => {
                 <Share2 className="w-5 h-5" />
               </Button>
             </div>
-            
-            {/* Quality badges */}
+
+            {/* Quality and Language badges */}
             <div className="flex flex-wrap gap-2 mb-6">
               <span className="px-3 py-1 bg-muted rounded-full text-sm text-foreground">
                 {movie.quality}
               </span>
-              <span className="px-3 py-1 bg-muted rounded-full text-sm text-foreground">
-                {movie.subtitles}
-              </span>
+              {movie.language?.map(lang => (
+                <span key={lang} className="px-3 py-1 bg-muted rounded-full text-sm text-foreground">
+                  {lang}
+                </span>
+              ))}
             </div>
-            
+
             {/* Description */}
             <p className="text-foreground/80 max-w-2xl">
               {movie.description}
@@ -137,7 +167,7 @@ const MovieDetailPage = () => {
           </div>
         </div>
       </section>
-      
+
       {/* Tabs */}
       <section className="container mx-auto px-4 py-8">
         <Tabs defaultValue="episodes" className="w-full">
@@ -146,13 +176,13 @@ const MovieDetailPage = () => {
             <TabsTrigger value="details">Детали</TabsTrigger>
             <TabsTrigger value="similar">Похожие</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="episodes">
             <div className="mb-4">
               <h3 className="text-lg font-semibold text-foreground mb-4">Сезон 1</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {Array.from({ length: 8 }).map((_, index) => (
-                  <Link 
+                  <Link
                     key={index}
                     to={`/watch/${movie.id}?season=1&episode=${index + 1}`}
                     className="group relative aspect-video rounded-lg overflow-hidden bg-muted"
@@ -161,6 +191,10 @@ const MovieDetailPage = () => {
                       src={movie.image}
                       alt={`Серия ${index + 1}`}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        if (movie.poster && target.src !== movie.poster) target.src = movie.poster;
+                      }}
                     />
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <Play className="w-8 h-8 text-white" />
@@ -173,13 +207,13 @@ const MovieDetailPage = () => {
               </div>
             </div>
           </TabsContent>
-          
+
           <TabsContent value="details">
             <div className="grid md:grid-cols-2 gap-8">
               <div>
                 <h3 className="text-lg font-semibold text-foreground mb-4">О сериале</h3>
                 <p className="text-muted-foreground mb-6">{movie.description}</p>
-                
+
                 <div className="space-y-3">
                   <div className="flex gap-4">
                     <span className="text-muted-foreground w-32">Жанр:</span>
@@ -201,7 +235,7 @@ const MovieDetailPage = () => {
               </div>
             </div>
           </TabsContent>
-          
+
           <TabsContent value="similar">
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {popularMovies.map((m) => (
@@ -210,6 +244,7 @@ const MovieDetailPage = () => {
                   id={m.id}
                   title={m.title}
                   image={m.image}
+                  logo={m.logo}
                   rating={m.rating}
                   type={m.type}
                   year={m.year}
@@ -219,7 +254,7 @@ const MovieDetailPage = () => {
           </TabsContent>
         </Tabs>
       </section>
-      
+
       {/* Similar content */}
       <ContentRow title="Вам также понравится">
         {[...popularMovies, ...freeMovies.slice(0, 2)].map((m, index) => (
@@ -228,6 +263,7 @@ const MovieDetailPage = () => {
             id={m.id}
             title={m.title}
             image={m.image}
+            logo={m.logo}
             rating={m.rating}
             type={m.type}
             year={m.year}

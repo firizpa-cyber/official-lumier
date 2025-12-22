@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, Search, X } from "lucide-react";
+import { Menu, Search, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import logo from "@/assets/logo-lumiere.png";
@@ -50,7 +50,13 @@ export function Header() {
   const navigate = useNavigate();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const isCatalogOpen = location.pathname === "/catalog";
+
+  useEffect(() => {
+    // Update login status when component mounts or on potential storage changes
+    setIsLoggedIn(!!localStorage.getItem("auth_token"));
+  }, [location]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,43 +76,43 @@ export function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass-strong">
-      <div className="w-full px-3 sm:px-4">
-        <div className="flex items-center justify-between h-[72px] gap-2 sm:gap-4">
+      <div className="w-full px-4">
+        <div className="flex items-center justify-between h-[72px] gap-4">
           {/* Left section - Logo & Catalog */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div className="flex items-center gap-4 flex-shrink-0">
             <Link to="/" className="flex items-center flex-shrink-0">
-              <img src={logo} alt="Lumiere" className="h-7 sm:h-8 w-auto" />
+              <img src={logo} alt="Lumiere" className="h-8 w-auto" />
             </Link>
 
             <button
               onClick={isCatalogOpen ? closeCatalog : openCatalog}
               className={cn(
-                "flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full transition-colors flex-shrink-0",
+                "flex items-center gap-2 px-3 py-2 rounded-full transition-colors flex-shrink-0",
                 isCatalogOpen
                   ? "bg-muted text-foreground"
                   : "text-foreground/80 hover:text-foreground hover:bg-muted/50"
               )}
             >
-              {isCatalogOpen ? <X className="w-4 sm:w-5 h-4 sm:h-5" /> : <Menu className="w-4 sm:w-5 h-4 sm:h-5" />}
-              <span className="text-xs sm:text-sm font-medium hidden sm:inline">Каталог</span>
+              {isCatalogOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <span className="text-sm font-medium hidden md:inline">Каталог</span>
             </button>
           </div>
 
-          {/* Center - Search (full width on mobile, limited on larger) */}
-          <form onSubmit={handleSearch} className="relative flex items-center flex-1 max-w-xs sm:max-w-sm lg:max-w-sm">
-            <Search className="absolute left-3 w-3.5 h-3.5 text-muted-foreground" />
+          {/* Center - Search */}
+          <form onSubmit={handleSearch} className="relative flex items-center flex-1 max-w-[300px] xl:max-w-[400px]">
+            <Search className="absolute left-3 w-4 h-4 text-muted-foreground" />
             <Input
               type="text"
               placeholder="Поиск"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => navigate("/search")}
-              className="pl-9 w-full text-xs sm:text-sm bg-muted/50 border-border/50 focus:bg-muted"
+              className="pl-10 w-full bg-muted/50 border-border/50 focus:bg-muted h-10 rounded-full"
             />
           </form>
 
-          {/* Desktop navigation (hidden on mobile/tablet) */}
-          <nav className="hidden lg:flex items-center gap-0.5 flex-shrink-0">
+          {/* Desktop navigation */}
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2 flex-shrink-0">
             {desktopNavItems.map((item) => {
               const isActive = location.pathname === item.href;
               return (
@@ -114,52 +120,64 @@ export function Header() {
                   key={item.href}
                   to={item.href}
                   className={cn(
-                    "nav-link",
+                    "nav-link min-w-[75px] xl:min-w-[85px]",
                     isActive && "active"
                   )}
                 >
                   <img
                     src={isActive ? item.iconActive : item.iconNormal}
                     alt={item.label}
-                    className="nav-link-icon w-5 h-5"
+                    className="nav-link-icon w-6 h-6"
                   />
-                  <span className="nav-link-label">{item.label}</span>
+                  <span className="nav-link-label text-[10px] xl:text-[11px] opacity-100 block">{item.label}</span>
                 </Link>
               );
             })}
           </nav>
 
-          {/* Right section - Promo, Login, Search icon */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          {/* Right section - Promo, Login, Profile */}
+          <div className="flex items-center gap-2 xl:gap-4 flex-shrink-0">
             <Link to="/pricing" className="hidden sm:block">
               <Button
                 variant="default"
-                className="bg-gradient-primary hover:opacity-90 text-xs sm:text-sm font-semibold px-3 sm:px-4 py-1.5 sm:py-2 h-auto"
+                className="bg-gradient-primary hover:opacity-90 text-[13px] font-semibold px-4 py-2 h-10 rounded-full shadow-lg shadow-primary/20"
               >
-                <span className="hidden md:inline">15 смн за 30 дней</span>
-                <span className="md:hidden">15 смн</span>
+                <span className="hidden xl:inline">15 смн за 30 дней</span>
+                <span className="xl:hidden">15 смн</span>
               </Button>
             </Link>
 
-            <Link to="/auth" className="hidden sm:block">
-              <Button
-                variant="outline"
-                className="border-border/50 hover:bg-muted/50 text-xs sm:text-sm px-2.5 sm:px-3 py-1.5 sm:py-2 h-auto"
+            {isLoggedIn ? (
+              <Link
+                to="/profile"
+                className={cn(
+                  "nav-link min-w-[75px] xl:min-w-[85px]",
+                  location.pathname === "/profile" && "active"
+                )}
               >
-                Войти
-              </Button>
-            </Link>
+                <User className="nav-link-icon w-6 h-6" />
+                <span className="nav-link-label text-[10px] xl:text-[11px] opacity-100 block">Профиль</span>
+              </Link>
+            ) : (
+              <Link to="/auth" className="hidden sm:block flex-shrink-0">
+                <Button
+                  variant="outline"
+                  className="border-border/50 hover:bg-muted/50 text-sm px-4 h-10 rounded-full"
+                >
+                  Войти
+                </Button>
+              </Link>
+            )}
 
             <button
               onClick={() => navigate("/search")}
               className="sm:hidden p-2 text-foreground/80 hover:text-foreground flex-shrink-0"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-5 h-5" />
             </button>
           </div>
         </div>
       </div>
-      
     </header>
   );
 }

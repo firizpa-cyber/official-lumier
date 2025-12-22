@@ -10,10 +10,10 @@ const Index = () => {
       {/* SEO */}
       <title>Lumiere - Смотрите фильмы и сериалы онлайн</title>
       <meta name="description" content="Смотрите фильмы, сериалы, мультфильмы и ТВ-каналы онлайн в отличном качестве на любых устройствах." />
-      
+
       {/* Hero carousel */}
       <HeroCarousel slides={heroSlides} />
-      
+
       {/* Popular for you */}
       <ContentRow title="Популярное для вас" showAllLink="/popular">
         {popularMovies.map((movie) => (
@@ -22,13 +22,14 @@ const Index = () => {
             id={movie.id}
             title={movie.title}
             image={movie.image}
+            logo={movie.logo}
             rating={movie.rating}
             type={movie.type}
             year={movie.year}
           />
         ))}
       </ContentRow>
-      
+
       {/* Free movies */}
       <ContentRow title="Бесплатные" showAllLink="/free">
         {freeMovies.map((movie) => (
@@ -43,7 +44,7 @@ const Index = () => {
           />
         ))}
       </ContentRow>
-      
+
       {/* More popular */}
       <ContentRow title="Сериалы недели">
         {[...popularMovies].reverse().map((movie) => (
@@ -58,7 +59,7 @@ const Index = () => {
           />
         ))}
       </ContentRow>
-      
+
       {/* New releases */}
       <ContentRow title="Новинки">
         {[...freeMovies, ...popularMovies.slice(0, 2)].map((movie, index) => (

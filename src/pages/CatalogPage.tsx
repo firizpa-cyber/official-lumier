@@ -76,7 +76,7 @@ const plots = [
 
 const CatalogPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   const [activeType, setActiveType] = useState(searchParams.get("type") || "films");
   const [genre, setGenre] = useState("Все жанры");
   const [country, setCountry] = useState("Все страны");
@@ -117,7 +117,7 @@ const CatalogPage = () => {
     setMadeInAnt(false);
   };
 
-  const hasActiveFilters = genre !== "Все жанры" || country !== "Все страны" || 
+  const hasActiveFilters = genre !== "Все жанры" || country !== "Все страны" ||
     year !== "Все годы" || plot !== "Любой сюжет" || hideWatched || freeOnly || madeInAnt;
 
   return (
@@ -132,8 +132,8 @@ const CatalogPage = () => {
               onClick={() => setActiveType(type.id)}
               className={cn(
                 "rounded-full px-6",
-                activeType === type.id 
-                  ? "bg-primary hover:bg-primary/90" 
+                activeType === type.id
+                  ? "bg-primary hover:bg-primary/90"
                   : "bg-transparent border-border hover:bg-muted"
               )}
             >
@@ -196,25 +196,25 @@ const CatalogPage = () => {
         {/* Checkbox filters */}
         <div className="flex flex-wrap items-center gap-6 mb-8">
           <label className="flex items-center gap-2 cursor-pointer">
-            <Checkbox 
-              checked={madeInAnt} 
-              onCheckedChange={(checked) => setMadeInAnt(checked as boolean)} 
+            <Checkbox
+              checked={madeInAnt}
+              onCheckedChange={(checked) => setMadeInAnt(checked as boolean)}
             />
             <span className="text-sm text-foreground">Сделано в АНТ</span>
           </label>
 
           <label className="flex items-center gap-2 cursor-pointer">
-            <Checkbox 
-              checked={freeOnly} 
-              onCheckedChange={(checked) => setFreeOnly(checked as boolean)} 
+            <Checkbox
+              checked={freeOnly}
+              onCheckedChange={(checked) => setFreeOnly(checked as boolean)}
             />
             <span className="text-sm text-foreground">Бесплатно</span>
           </label>
 
           <label className="flex items-center gap-2 cursor-pointer">
-            <Checkbox 
-              checked={hideWatched} 
-              onCheckedChange={(checked) => setHideWatched(checked as boolean)} 
+            <Checkbox
+              checked={hideWatched}
+              onCheckedChange={(checked) => setHideWatched(checked as boolean)}
             />
             <span className="text-sm text-foreground">Скрыть просмотренные</span>
           </label>
@@ -240,8 +240,10 @@ const CatalogPage = () => {
               id={item.id}
               title={item.title}
               image={item.image}
+              logo={item.logo}
               rating={item.rating}
               type={item.type}
+              year={item.year}
             />
           ))}
         </div>
@@ -264,11 +266,13 @@ interface CatalogCardProps {
   id: string;
   title: string;
   image: string;
+  logo?: string;
   rating?: number;
   type: "film" | "series" | "premiere";
+  year?: string;
 }
 
-function CatalogCard({ id, title, image, rating, type }: CatalogCardProps) {
+function CatalogCard({ id, title, image, logo, rating, type, year }: CatalogCardProps) {
   const badgeClasses = {
     film: "badge-film",
     series: "badge-series",
@@ -287,32 +291,59 @@ function CatalogCard({ id, title, image, rating, type }: CatalogCardProps) {
       className="group relative rounded-xl overflow-hidden card-hover"
     >
       {/* Horizontal aspect ratio */}
-      <div className="aspect-[16/10] relative overflow-hidden rounded-xl">
+      <div className="aspect-[16/10] relative overflow-hidden rounded-xl bg-muted/20">
         <img
           src={image}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           loading="lazy"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            if (logo && target.src !== logo) {
+              target.src = logo;
+            }
+          }}
         />
-        
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        
-        {/* Type badge */}
-        <div className="absolute top-2 left-2">
-          <span className={cn(badgeClasses[type], "text-xs")}>{badgeLabels[type]}</span>
-        </div>
-        
-        {/* Rating badge */}
-        {rating && (
-          <div className="absolute top-2 right-2">
-            <span className="rating-badge text-xs">{rating.toFixed(1)}</span>
+
+        {/* Logo Overlay - if available */}
+        {logo && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/5 group-hover:bg-black/0 transition-colors duration-300 z-10">
+            <img
+              src={logo}
+              alt={title}
+              className="w-full h-full p-2 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] transition-transform duration-500 group-hover:scale-105"
+              onError={(e) => {
+                (e.target as HTMLImageElement).parentElement!.style.display = 'none';
+              }}
+            />
           </div>
         )}
-        
+
+        {/* Gradient overlay */}
+        <div className={cn(
+          "absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent transition-opacity duration-300",
+          logo ? "opacity-40 group-hover:opacity-60" : "opacity-0 group-hover:opacity-100"
+        )} />
+
+        {/* Type badge */}
+        <div className="absolute top-2 left-2 z-10">
+          <span className={cn(badgeClasses[type], "text-[10px] py-0.5 px-1.5")}>{badgeLabels[type]}</span>
+        </div>
+
+        {/* Rating badge */}
+        {rating && (
+          <div className="absolute top-2 right-2 z-10">
+            <span className="rating-badge text-[10px] py-0.5 px-1.5">{rating.toFixed(1)}</span>
+          </div>
+        )}
+
         {/* Title */}
-        <div className="absolute bottom-0 left-0 right-0 p-3">
-          <h3 className="text-foreground font-medium text-sm line-clamp-1">{title}</h3>
+        <div className={cn(
+          "absolute bottom-0 left-0 right-0 p-3 z-10 transition-transform duration-500",
+          logo ? "translate-y-full group-hover:translate-y-0" : ""
+        )}>
+          {!logo && <h3 className="text-white font-medium text-xs line-clamp-1">{title}</h3>}
+          {logo && <h3 className="text-white font-medium text-xs line-clamp-1">{title}</h3>}
         </div>
       </div>
     </a>
