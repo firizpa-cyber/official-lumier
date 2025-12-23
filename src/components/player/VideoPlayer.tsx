@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import Hls from 'hls.js';
 import './VideoPlayer.css';
+import { getProxiedUrl } from "@/lib/image-proxy";
 
 interface VideoPlayerProps {
     streamUrl: string;
@@ -21,6 +22,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ streamUrl, poster, title }) =
     const containerRef = useRef<HTMLDivElement>(null);
     const playerInstance = useRef<any>(null);
 
+    const proxiedPoster = getProxiedUrl(poster) || poster;
+
     useEffect(() => {
         const loadScript = (id: string, url: string): Promise<void> => {
             return new Promise((resolve) => {
@@ -40,6 +43,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ streamUrl, poster, title }) =
         const initPlayer = async () => {
             // Initialize HLS.js
             window.Hls = Hls;
+            console.log('[VideoPlayer] HLS.js initialized manually:', window.Hls);
 
             // Load Material Icons
             if (!document.getElementById('material-icons')) {
