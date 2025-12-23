@@ -7,16 +7,19 @@ import heroKids from "@/assets/hero-kids.jpg";
 import { Play, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { getProxiedUrl } from "@/lib/image-proxy";
 
 const KidsPage = () => {
   const [bannerFailed, setBannerFailed] = useState(false);
   const heroMovie = kidsMovies[0]; // Assume first kids movie for hero data
+  const proxiedLogo = heroMovie?.logo ? getProxiedUrl(heroMovie.logo) : undefined;
+
   return (
     <Layout>
       {/* Hero section */}
       <section className="relative h-[500px] md:h-[550px] overflow-hidden">
         <img
-          src={bannerFailed ? (heroMovie?.logo || heroKids) : heroKids}
+          src={bannerFailed ? (proxiedLogo || heroKids) : heroKids}
           alt="Kids Hero"
           className="w-full h-full object-cover"
           onError={() => setBannerFailed(true)}

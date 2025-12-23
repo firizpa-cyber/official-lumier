@@ -14,11 +14,6 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/channels/, '/channels-api.php'),
       },
-      '/api/auth': {
-        target: 'http://localhost:8001',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/auth/, '/auth-api.php'),
-      },
       '/api': {
         target: 'http://localhost:8001',
         changeOrigin: true,

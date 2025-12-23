@@ -8,6 +8,7 @@ import { Play, Plus, Share2, ThumbsUp, Star, Clock, Globe, Calendar } from "luci
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import hero2 from "@/assets/hero-2.jpg";
+import { getProxiedUrl } from "@/lib/image-proxy";
 
 import { getMovieById } from "@/data/movies";
 
@@ -30,6 +31,9 @@ const MovieDetailPage = () => {
 
   const movie = {
     ...movieData,
+    image: getProxiedUrl(movieData.image) || movieData.image,
+    poster: getProxiedUrl(movieData.poster) || movieData.poster,
+    logo: getProxiedUrl(movieData.logo) || movieData.logo,
     originalTitle: "",
     seasons: 1,
     episodes: 1,

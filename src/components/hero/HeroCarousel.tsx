@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Play, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getProxiedUrl } from "@/lib/image-proxy";
 
 export interface HeroSlide {
   id: string;

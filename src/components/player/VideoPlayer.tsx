@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import Hls from 'hls.js';
 import './VideoPlayer.css';
 
 interface VideoPlayerProps {
@@ -20,25 +21,25 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ streamUrl, poster, title }) =
     const containerRef = useRef<HTMLDivElement>(null);
     const playerInstance = useRef<any>(null);
 
-    const loadScript = (id: string, url: string): Promise<void> => {
-        return new Promise((resolve) => {
-            if (document.getElementById(id)) {
-                resolve();
-                return;
-            }
-            const script = document.createElement('script');
-            script.id = id;
-            script.src = url;
-            script.async = true;
-            script.onload = () => resolve();
-            document.head.appendChild(script);
-        });
-    };
-
     useEffect(() => {
+        const loadScript = (id: string, url: string): Promise<void> => {
+            return new Promise((resolve) => {
+                if (document.getElementById(id)) {
+                    resolve();
+                    return;
+                }
+                const script = document.createElement('script');
+                script.id = id;
+                script.src = url;
+                script.async = true;
+                script.onload = () => resolve();
+                document.head.appendChild(script);
+            });
+        };
+
         const initPlayer = async () => {
-            // Load HLS.js
-            await loadScript('hls-js', 'https://cdn.jsdelivr.net/npm/hls.js@latest');
+            // Initialize HLS.js
+            window.Hls = Hls;
 
             // Load Material Icons
             if (!document.getElementById('material-icons')) {

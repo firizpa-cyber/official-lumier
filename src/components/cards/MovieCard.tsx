@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { getProxiedUrl } from "@/lib/image-proxy";
 
 export interface MovieCardProps {
   id: string;
@@ -24,6 +25,9 @@ export function MovieCard({
   year,
   className
 }: MovieCardProps) {
+  const proxiedImage = getProxiedUrl(image) || image;
+  const proxiedLogo = getProxiedUrl(logo);
+
   const badgeClasses = {
     film: "badge-film",
     series: "badge-series",
