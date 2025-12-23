@@ -112,7 +112,7 @@ class ProVideoPlayer {
     }
 
     detectSourceType(url) {
-        if (url.includes('proxy.php?url=')) {
+        if (url.includes('/api/proxy?url=')) {
             try {
                 const match = url.match(/[?&]url=([^&]+)/);
                 if (match) return this.detectSourceType(decodeURIComponent(match[1]));
@@ -156,9 +156,9 @@ class ProVideoPlayer {
             load(context, config, callbacks) {
                 const originalUrl = context.url;
 
-                if (!originalUrl.includes('localhost') && !originalUrl.includes('127.0.0.1') && !originalUrl.includes('proxy.php')) {
+                if (!originalUrl.includes('localhost') && !originalUrl.includes('127.0.0.1') && !originalUrl.includes('/api/proxy')) {
                     // Используем относительный путь через Vite прокси для поддержки публичного доступа
-                    const proxyPath = '/api/proxy.php';
+                    const proxyPath = '/api/proxy';
                     context.url = proxyPath + '?url=' + encodeURIComponent(originalUrl);
                     console.log(`[Proxy] ${originalUrl} -> ${context.url}`);
                 }
@@ -175,7 +175,7 @@ class ProVideoPlayer {
 
         // Сохраняем source URL для возможной перезагрузки
         this.sourceUrl = url;
-        if (url.includes('proxy.php?url=')) {
+        if (url.includes('/api/proxy?url=')) {
             const match = url.match(/[?&]url=([^&]+)/);
             if (match) this.sourceUrl = decodeURIComponent(match[1]);
         }

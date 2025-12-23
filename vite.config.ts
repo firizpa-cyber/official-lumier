@@ -9,13 +9,8 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     proxy: {
-      '/api/channels': {
-        target: 'http://localhost:8001',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/channels/, '/channels-api.php'),
-      },
       '/api': {
-        target: 'http://localhost:8001',
+        target: 'http://localhost:3001',
         changeOrigin: true,
       }
     }

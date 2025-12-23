@@ -10,7 +10,7 @@ export const getProxiedUrl = (url?: string): string | undefined => {
   // or if it's an HTTP URL when we might be running on HTTPS
   if (url.includes('ant-tv.ddns.net') || (url.startsWith('http://') && window.location.protocol === 'https:')) {
     // Use the local proxy
-    return `/api/proxy.php?url=${encodeURIComponent(url)}`;
+    return `/api/proxy?url=${encodeURIComponent(url)}`;
   }
 
   return url;
