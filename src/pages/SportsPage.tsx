@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Play, Trophy, Calendar } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { getProxiedUrl } from "@/lib/image-proxy";
 
 const SportsPage = () => {
   const navigate = useNavigate();
@@ -102,7 +103,7 @@ const SportsPage = () => {
                     <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
                     <span className="text-[10px] font-black text-white/60 tracking-widest uppercase">LIVE</span>
                   </div>
-                  <img src={match.logo} alt={match.title} className="max-w-full max-h-20 object-contain drop-shadow-[0_0_15px_rgba(0,0,0,0.5)] transition-transform duration-500 group-hover:scale-110" />
+                  <img src={getProxiedUrl(match.logo)} alt={match.title} className="max-w-full max-h-20 object-contain drop-shadow-[0_0_15px_rgba(0,0,0,0.5)] transition-transform duration-500 group-hover:scale-110" />
                 </div>
                 <div className="p-6">
                   <div className="flex items-center gap-3 mb-4">

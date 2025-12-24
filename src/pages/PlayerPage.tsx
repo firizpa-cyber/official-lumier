@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { getProxiedUrl } from "@/lib/image-proxy";
 import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 import {
   Play, Pause, Volume2, VolumeX, Maximize, Minimize,
@@ -280,7 +281,7 @@ const PlayerPage = () => {
         ref={videoRef}
         className="w-full h-full object-contain"
         playsInline
-        poster={streamData?.logo}
+        poster={getProxiedUrl(streamData?.logo)}
         onClick={togglePlay}
       />
 
