@@ -1,11 +1,11 @@
 import express from 'express';
 import cors from 'cors';
-import proxyRouter from './routes/proxy';
-import liveRouter from './routes/live';
-import channelsRouter from './routes/channels';
-import contentRouter from './routes/content';
-import corsProxyRouter from './routes/cors-proxy';
-import authRouter from './routes/auth';
+import proxyRouter from './routes/proxy.js';
+import liveRouter from './routes/live.js';
+import channelsRouter from './routes/channels.js';
+import contentRouter from './routes/content.js';
+import corsProxyRouter from './routes/cors-proxy.js';
+import authRouter from './routes/auth.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -27,6 +27,10 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
+
+export default app;
