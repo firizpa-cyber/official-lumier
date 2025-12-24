@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { getProxiedUrl } from "@/lib/image-proxy";
 
 export interface TVChannelCardProps {
   id: string;
@@ -35,7 +36,7 @@ export function TVChannelCard({
         <div className="absolute inset-0 bg-radial-gradient from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
         <img
-          src={logo}
+          src={getProxiedUrl(logo)}
           alt={name}
           className="max-w-full max-h-24 object-contain contrast-125 brightness-110 drop-shadow-[0_0_15px_rgba(0,0,0,0.5)] z-10 transition-transform duration-500 group-hover:scale-110"
         />
